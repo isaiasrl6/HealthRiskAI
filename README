@@ -1,0 +1,77 @@
+# 💡 HealthRisk AI
+
+**HealthRisk AI** es una solución de inteligencia artificial diseñada para predecir si un afiliado de una aseguradora de salud incurrirá en un gasto médico elevado, combinando análisis exploratorio, modelado predictivo y una interfaz visual ejecutiva.
+
+---
+
+## 🎯 Objetivo del proyecto
+
+Permitir a aseguradoras como **Mapfre** anticipar riesgos médicos y tomar decisiones basadas en datos, con un sistema que abarca desde el procesamiento de datos hasta la visualización y predicción de riesgo individual.
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+- `Python`: procesamiento de datos y modelado.
+- `pandas`, `scikit-learn`, `joblib`: manipulación de datos y machine learning.
+- `Streamlit`: interfaz interactiva.
+- `Plotly`: visualización profesional.
+- `kaleido`, `fpdf`: generación de PDF descargable.
+- `logging`, `os`, `datetime`: automatización y trazabilidad.
+
+---
+
+## 🧱 Estructura del Proyecto
+
+HealthRiskAI/
+├── insurance.csv # Dataset real original
+├── etl_healthrisk.py # Pipeline ETL completo con validación y logging
+├── train_model.py # Entrenamiento avanzado con AUC y versionado
+├── app/
+│ └── streamlit_app.py # App visual para predicción + dashboard
+├── data/
+│ └── clean_insurance_.csv # Archivos limpios versionados
+├── model/
+│ ├── healthrisk_model_.pkl # Modelos entrenados
+│ └── roc_curve_*.png # Curvas ROC
+├── logs/
+│ ├── etl_healthrisk.log # Log del ETL
+│ ├── train_model.log # Log del entrenamiento
+│ └── training_report.csv # Métricas de clasificación
+
+
+---
+
+## ⚙️ Cómo ejecutar localmente
+
+1. Clona el repositorio:
+```bash
+git clone https://github.com/tuusuario/HealthRiskAI.git
+cd HealthRiskAI
+
+📊 Funcionalidades principales
+Carga automática del modelo más reciente entrenado.
+
+Predicción personalizada según características del afiliado.
+
+Visualización de:
+
+Curva ROC.
+
+Importancia de variables.
+
+Dashboard exploratorio.
+
+Descarga de dashboard en PDF (¡ideal para ejecutivos!).
+
+Registro de logs y métricas para auditoría técnica.
+
+📎 Dataset
+Usamos el dataset real público:
+Medical Cost Personal Dataset – Kaggle
+
+👤 Autor
+Desarrollado por Isaías Josué Rosario Luciano
+📧 rosarioisaias06@gmail.com
+🔗 LinkedIn
+

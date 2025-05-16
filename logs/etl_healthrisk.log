@@ -1,0 +1,14 @@
+2025-05-15 21:58:43,590 - INFO - 🟡 Iniciando proceso ETL
+2025-05-15 21:58:43,590 - INFO - Datos extraídos correctamente.
+2025-05-15 21:58:43,602 - INFO - ✅ Validación de calidad de datos superada.
+2025-05-15 21:58:43,616 - INFO - ✅ Transformación completada.
+2025-05-15 21:58:43,623 - INFO - ✅ Datos guardados en data/clean_insurance_20250515_2158.csv
+2025-05-15 21:58:43,626 - INFO - 📋 Reporte generado en logs/etl_report.csv
+2025-05-15 21:58:43,626 - INFO - ✅ Proceso ETL completado exitosamente.
+2025-05-15 22:01:51,568 - INFO - 🟡 Iniciando proceso ETL
+2025-05-15 22:01:51,568 - INFO - Datos extraídos correctamente.
+2025-05-15 22:01:51,577 - INFO - ✅ Validación de calidad de datos superada.
+2025-05-15 22:01:51,589 - INFO - ✅ Transformación completada.
+2025-05-15 22:01:51,596 - INFO - ✅ Datos guardados en data/clean_insurance.csv
+2025-05-15 22:01:51,598 - INFO - 📋 Reporte generado en logs/etl_report.csv
+2025-05-15 22:01:51,599 - INFO - ✅ Proceso ETL completado exitosamente.

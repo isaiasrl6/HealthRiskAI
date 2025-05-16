@@ -1,0 +1,7 @@
+2025-05-15 22:00:55,505 - INFO - 🚀 Iniciando entrenamiento del modelo
+2025-05-15 22:00:55,507 - ERROR - ❌ Error durante el entrenamiento: [Errno 2] No such file or directory: 'data/clean_insurance.csv'
+2025-05-15 22:02:01,456 - INFO - 🚀 Iniciando entrenamiento del modelo
+2025-05-15 22:02:01,693 - INFO - AUC del modelo: 0.9074
+2025-05-15 22:02:01,797 - INFO - ✅ Modelo guardado en model/healthrisk_model_20250515_2202.pkl
+2025-05-15 22:02:02,082 - INFO - 📈 Curva ROC guardada en model/roc_curve_20250515_2202.png
+2025-05-15 22:02:02,104 - INFO - 📋 Reporte de entrenamiento guardado en logs/training_report.csv

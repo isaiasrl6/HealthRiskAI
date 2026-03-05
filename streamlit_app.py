@@ -95,7 +95,7 @@ else:
 with st.container():
     c1, c2 = st.columns([1, 4])
     with c1:
-        st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Logo_SeNaSa.png/640px-Logo_SeNaSa.png", width=150)
+        st.image("https://cdn-icons-png.flaticon.com/512/3004/3004458.png", width=100) # Un icono médico genérico
     with c2:
         st.title("HealthRisk AI")
         st.markdown(f"<h4 style='color:{SENASA_GRAY}; font-weight: 400;'>Plataforma de Análisis Predictivo de Siniestralidad</h4>", unsafe_allow_html=True)

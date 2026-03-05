@@ -210,4 +210,4 @@ with tab3:
 
 with tab4:
     st.markdown(f"**Autor:** {st.session_state.get('user_name', 'Isaías Rosario Luciano')}")
-    st.write("Versión 2.0 - Optimización para SeNaSa Analytics.")
+    st.write("Versión 2.0 - Optimización 2026.")

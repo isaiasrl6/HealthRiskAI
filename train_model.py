@@ -3,89 +3,100 @@ import os
 import joblib
 import logging
 from datetime import datetime
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    classification_report,
-    confusion_matrix,
-    roc_auc_score,
-    RocCurveDisplay
-)
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report, roc_auc_score, RocCurveDisplay
 import matplotlib.pyplot as plt
 
 # ========== CONFIGURACIÓN ==========
 DATA_PATH = 'data/clean_insurance.csv'
 MODEL_DIR = 'model'
 LOG_DIR = 'logs'
-REPORT_PATH = os.path.join(LOG_DIR, 'training_report.csv')
-AUC_THRESHOLD = 0.80  # Nivel mínimo aceptable
+AUC_THRESHOLD = 0.82 # Subimos la vara
 
-# Crear carpetas si no existen
 os.makedirs(MODEL_DIR, exist_ok=True)
 os.makedirs(LOG_DIR, exist_ok=True)
 
-# Configurar logging
 logging.basicConfig(
     filename=os.path.join(LOG_DIR, 'train_model.log'),
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# ========== ENTRENAMIENTO ==========
-def train_model():
-    logging.info("🚀 Iniciando entrenamiento del modelo")
+def train_model_pro():
+    logging.info("🚀 Iniciando Pipeline de Entrenamiento Pro")
 
+    # 1. Carga de datos
     df = pd.read_csv(DATA_PATH)
     X = df.drop('high_cost', axis=1)
     y = df['high_cost']
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42, stratify=y # Mantener proporción de clases
     )
 
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
+    # 2. Definición de Búsqueda de Hiperparámetros
+    # Explicación: Buscamos el balance óptimo entre complejidad y precisión
+    rf = RandomForestClassifier(random_state=42)
+    param_grid = {
+        'n_estimators': [100, 200],
+        'max_depth': [None, 10, 20],
+        'min_samples_split': [2, 5],
+        'class_weight': ['balanced'] # Crucial si hay pocos casos de "alto costo"
+    }
 
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1]
+    # 3. Validación Cruzada
+    cv = StratifiedKFold(n_splits=5)
+    grid_search = GridSearchCV(
+        estimator=rf, 
+        param_grid=param_grid, 
+        cv=cv, 
+        scoring='roc_auc', 
+        n_jobs=-1 # Usar todos los núcleos del procesador
+    )
 
+    logging.info("⏳ Ejecutando GridSearchCV...")
+    grid_search.fit(X_train, y_train)
+
+    best_model = grid_search.best_estimator_
+    
+    # 4. Evaluación
+    y_proba = best_model.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_proba)
-    logging.info(f"AUC del modelo: {auc:.4f}")
+    
+    logging.info(f"🏆 Mejor AUC encontrado: {auc:.4f}")
+    logging.info(f"⚙️ Mejores Parámetros: {grid_search.best_params_}")
 
     if auc < AUC_THRESHOLD:
-        logging.warning(f"AUC menor al umbral aceptado ({AUC_THRESHOLD})")
-        raise ValueError("❌ Modelo no cumple con el rendimiento mínimo esperado.")
+        raise ValueError(f"❌ Rendimiento insuficiente ({auc:.4f}). Umbral: {AUC_THRESHOLD}")
 
-    # Guardar el modelo con timestamp
+    # 5. Persistencia Trazable
     timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-    model_path = os.path.join(MODEL_DIR, f'healthrisk_model_{timestamp}.pkl')
-    joblib.dump(model, model_path)
-    logging.info(f"✅ Modelo guardado en {model_path}")
-
-    # Guardar curva ROC
-    roc_plot_path = os.path.join(MODEL_DIR, f'roc_curve_{timestamp}.png')
-    RocCurveDisplay.from_predictions(y_test, y_proba)
-    plt.savefig(roc_plot_path)
-    logging.info(f"📈 Curva ROC guardada en {roc_plot_path}")
+    model_name = f'healthrisk_model_{timestamp}.pkl'
+    model_path = os.path.join(MODEL_DIR, model_name)
+    
+    # Guardamos metadatos junto al modelo
+    model_meta = {
+        'model': best_model,
+        'params': grid_search.best_params_,
+        'auc': auc,
+        'features': list(X.columns),
+        'date': timestamp
+    }
+    
+    joblib.dump(model_meta, model_path)
+    
+    # Visualización de Diagnóstico
+    RocCurveDisplay.from_predictions(y_test, y_proba, name="RF Optimized")
+    plt.title(f"ROC Curve - AUC: {auc:.4f}")
+    plt.savefig(os.path.join(MODEL_DIR, f'roc_{timestamp}.png'))
     plt.close()
 
-    # Guardar reporte en CSV
-    metrics = classification_report(y_test, y_pred, output_dict=True)
-    report_df = pd.DataFrame(metrics).transpose()
-    report_df['auc'] = auc
-    report_df['timestamp'] = timestamp
-    report_df.to_csv(REPORT_PATH, index=True)
-    logging.info(f"📋 Reporte de entrenamiento guardado en {REPORT_PATH}")
+    print(f"🔥 Modelo Pro guardado: {model_name} con AUC {auc:.4f}")
 
-    # Consola
-    print("✅ Entrenamiento finalizado con éxito")
-    print(f"Modelo guardado en: {model_path}")
-    print(f"AUC: {auc:.4f}")
-
-# ========== EJECUCIÓN ==========
 if __name__ == "__main__":
     try:
-        train_model()
+        train_model_pro()
     except Exception as e:
-        logging.error(f"❌ Error durante el entrenamiento: {e}")
-        print(f"🚨 Error: {e}")
+        logging.error(f"Falla en entrenamiento: {e}")

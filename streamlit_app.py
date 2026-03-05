@@ -18,57 +18,61 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# COLORES CORPORATIVOS SENASA
+# COLORES CORPORATIVOS SENASA (Base)
 SENASA_GREEN = "#39B54A"
-SENASA_GRAY = "#4D4D4D"
-BACKGROUND_LIGHT = "#F8F9FA"
+SENASA_RED = "#C40000"
 
-# Estilo CSS Avanzado
+# Estilo CSS Dinámico (Soporta Dark & Light Theme)
 st.markdown(f"""
     <style>
-    /* Fondo y fuente */
-    .main {{ background-color: {BACKGROUND_LIGHT}; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }}
+    /* Uso de variables de Streamlit para adaptabilidad */
+    .main {{ 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    }}
     
-    /* Card Style para contenedores */
+    /* Card Style: Usamos 'secondaryBackgroundColor' de Streamlit para el fondo de la tarjeta */
     div[data-testid="stVerticalBlock"] > div:has(div.stForm) {{
-        background-color: white;
+        background-color: var(--secondary-background-color);
         padding: 30px;
         border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }}
 
-    /* Botones Pro */
+    /* Botones Pro con gradiente adaptable */
     .stButton>button {{ 
         width: 100%; 
         border-radius: 12px; 
         height: 3.5em; 
         background: linear-gradient(135deg, {SENASA_GREEN} 0%, #2e8b3a 100%);
-        color: white; 
+        color: white !important; 
         border: none;
         font-weight: 600;
-        transition: all 0.3s ease;
     }}
-    .stButton>button:hover {{ transform: translateY(-2px); box-shadow: 0 5px 15px rgba(57, 181, 74, 0.4); color: white; }}
     
-    /* Tabs Estilizados */
-    .stTabs [data-baseweb="tab-list"] {{ gap: 8px; background-color: transparent; }}
+    /* Tabs: Quitamos fondos blancos fijos */
+    .stTabs [data-baseweb="tab-list"] {{ 
+        gap: 8px; 
+    }}
     .stTabs [data-baseweb="tab"] {{ 
-        background-color: white; 
         border-radius: 10px 10px 0 0; 
         padding: 12px 25px;
-        color: {SENASA_GRAY};
-        border: 1px solid #eee;
+        border: 1px solid rgba(128, 128, 128, 0.2);
     }}
     .stTabs [aria-selected="true"] {{ 
         background-color: {SENASA_GREEN} !important; 
         color: white !important; 
-        border: none !important;
+    }}
+
+    /* Ajuste de métricas para que el texto no se pierda */
+    [data-testid="stMetricValue"] {{
+        color: {SENASA_GREEN};
     }}
     </style>
     """, unsafe_allow_html=True)
 
 # ========================
-# CARGA DEL MODELO (Refactorizada)
+# CARGA DEL MODELO
 # ========================
 @st.cache_resource
 def load_latest_model():
@@ -79,12 +83,8 @@ def load_latest_model():
 model_data = load_latest_model()
 if model_data:
     model, model_name = model_data
-    st.sidebar.markdown(f"""
-    <div style='padding: 10px; border-radius: 10px; background-color: #e8f5e9; border: 1px solid {SENASA_GREEN};'>
-        <p style='margin:0; color:{SENASA_GRAY}; font-size: 0.8em;'>Modelo Activo</p>
-        <strong style='color:{SENASA_GREEN};'>{model_name}</strong>
-    </div>
-    """, unsafe_allow_html=True)
+    # Sidebar con color adaptable
+    st.sidebar.success(f"📌 **Modelo Activo:**\n{model_name}")
 else:
     st.error("No se detectó motor de IA.")
     st.stop()
@@ -93,19 +93,17 @@ else:
 # ENCABEZADO
 # ========================
 with st.container():
-    c1, c2 = st.columns([1, 4])
+    c1, c2 = st.columns([1, 6])
     with c1:
-        st.image("https://cdn-icons-png.flaticon.com/512/3004/3004458.png", width=100) # Un icono médico genérico
+        st.image("https://cdn-icons-png.flaticon.com/512/3004/3004458.png", width=80) 
     with c2:
         st.title("HealthRisk AI")
-        st.markdown(f"<h4 style='color:{SENASA_GRAY}; font-weight: 400;'>Plataforma de Análisis Predictivo de Siniestralidad</h4>", unsafe_allow_html=True)
-
-st.write("")
+        st.markdown("##### Plataforma de Análisis Predictivo de Siniestralidad")
 
 tab1, tab2, tab3, tab4 = st.tabs(["🎯 Evaluación", "📊 Inteligencia de Datos", "⚙️ Auditoría IA", "📖 Documentación"])
 
 # ========================
-# TAB 1 - EVALUACIÓN (UX MEJORADA)
+# TAB 1 - EVALUACIÓN
 # ========================
 with tab1:
     col_form, col_res = st.columns([1.2, 1])
@@ -119,16 +117,14 @@ with tab1:
                 sex = st.selectbox("Sexo Biológico", ["male", "female"])
                 bmi = st.slider("IMC (Índice Masa Corporal)", 10.0, 50.0, 24.5)
             with c_b:
-                smoker = st.radio("¿Hábito de tabaquismo?", ["no", "yes"], horizontal=True)
-                children = st.number_input("Dependientes Directos", 0, 10, 0)
-                region = st.selectbox("Zona de Residencia", ["northeast", "northwest", "southeast", "southwest"])
+                smoker = st.radio("¿Fuma?", ["no", "yes"], horizontal=True)
+                children = st.number_input("Dependientes", 0, 10, 0)
+                region = st.selectbox("Región", ["northeast", "northwest", "southeast", "southwest"])
             
-            st.write("")
             submitted = st.form_submit_button("GENERAR DIAGNÓSTICO")
 
     with col_res:
         if submitted:
-            # Procesamiento
             input_data = pd.DataFrame({
                 'age': [age], 'bmi': [bmi], 'children': [children],
                 'sex_male': [1 if sex == "male" else 0],
@@ -140,75 +136,78 @@ with tab1:
             
             proba = model.predict_proba(input_data)[0][1]
             
-            st.subheader("🩺 Resultado del Análisis")
+            st.subheader("🩺 Diagnóstico")
             
-            # Gauge Chart para Riesgo
+            # Gauge Chart Adaptable (Usamos 'template' para que Plotly detecte el Dark Mode)
             fig_gauge = go.Figure(go.Indicator(
                 mode = "gauge+number",
                 value = proba * 100,
-                domain = {'x': [0, 1], 'y': [0, 1]},
-                title = {'text': "Nivel de Riesgo (%)", 'font': {'size': 18}},
+                number = {'suffix': "%", 'font': {'color': SENASA_GREEN if proba < 0.5 else SENASA_RED}},
                 gauge = {
-                    'axis': {'range': [None, 100], 'tickwidth': 1},
-                    'bar': {'color': SENASA_GREEN if proba < 0.5 else "#C40000"},
+                    'axis': {'range': [None, 100]},
+                    'bar': {'color': SENASA_GREEN if proba < 0.5 else SENASA_RED},
                     'steps': [
-                        {'range': [0, 50], 'color': "#e8f5e9"},
-                        {'range': [50, 100], 'color': "#ffebee"}]
+                        {'range': [0, 50], 'color': "rgba(57, 181, 74, 0.1)"},
+                        {'range': [50, 100], 'color': "rgba(196, 0, 0, 0.1)"}]
                 }
             ))
-            fig_gauge.update_layout(height=250, margin=dict(l=20, r=20, t=40, b=20))
+            fig_gauge.update_layout(
+                height=250, 
+                margin=dict(l=20, r=20, t=20, b=20),
+                paper_bgcolor='rgba(0,0,0,0)', # Fondo transparente
+                plot_bgcolor='rgba(0,0,0,0)',
+                font = {'color': "gray"}
+            )
             st.plotly_chart(fig_gauge, use_container_width=True)
 
             if proba > 0.5:
-                st.warning(f"**ALERTA:** El afiliado presenta un perfil de alto costo potencial.")
+                st.warning(f"**RIESGO ELEVADO:** Probabilidad de alto costo detectada.")
             else:
-                st.success(f"**OPTIMO:** El afiliado se mantiene bajo los umbrales de riesgo financiero.")
+                st.success(f"**RIESGO BAJO:** Perfil dentro de parámetros normales.")
         else:
-            st.info("Complete los datos y presione 'Generar Diagnóstico' para ver los resultados.")
+            st.info("Esperando datos para diagnóstico...")
 
 # ========================
-# TAB 2 - DASHBOARD (GRÁFICOS MÁS INTERACTIVOS)
+# TAB 2 - DASHBOARD
 # ========================
 with tab2:
     try:
         df = pd.read_csv("insurance.csv")
-        st.subheader("🔬 Hallazgos en la Población")
+        st.subheader("🔬 Insights Poblacionales")
         
-        row1_1, row1_2, row1_3 = st.columns(3)
-        row1_1.metric("Costo Total", f"${df['charges'].sum()/1e6:.1f}M", "+2.3% vs mes ant")
-        row1_2.metric("Siniestralidad Promedio", f"${df['charges'].mean():,.0f}")
-        row1_3.metric("Población Riesgo (IA)", "18.4%", "-0.5%")
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Costo Total", f"${df['charges'].sum()/1e6:.1f}M")
+        m2.metric("Siniestralidad Promedio", f"${df['charges'].mean():,.0f}")
+        m3.metric("Casos Críticos (IA)", "18.4%")
 
         c1, c2 = st.columns(2)
         with c1:
-            # Gráfico de dispersión Edad vs Costo vs Fumador
+            # Gráficos con template="none" para que hereden el tema del navegador
             fig_scatter = px.scatter(df, x="age", y="charges", color="smoker", 
-                                    title="Relación Edad/Costo por Tabaquismo",
-                                    color_discrete_map={"yes": "#C40000", "no": SENASA_GREEN},
-                                    template="simple_white")
+                                    color_discrete_map={"yes": SENASA_RED, "no": SENASA_GREEN},
+                                    template="plotly_white" if st.get_option("theme.base") == "light" else "plotly_dark")
+            fig_scatter.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig_scatter, use_container_width=True)
         with c2:
-            # Box plot por región
             fig_box = px.box(df, x="region", y="charges", color="region",
-                            title="Variabilidad de Costos por Región",
-                            color_discrete_sequence=px.colors.qualitative.Safe)
+                            template="plotly_white" if st.get_option("theme.base") == "light" else "plotly_dark")
+            fig_box.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
             st.plotly_chart(fig_box, use_container_width=True)
-            
     except:
-        st.error("Base de datos 'insurance.csv' no disponible.")
+        st.error("Archivo 'insurance.csv' no encontrado.")
 
 # ========================
-# TAB 3 & 4 (Simplificados para Brevedad)
+# TAB 3 & 4
 # ========================
 with tab3:
-    st.subheader("📊 Factores Críticos (Feature Importance)")
+    st.subheader("📊 Importancia de Variables")
     try:
-        # Esto asume que tienes acceso a las columnas que el modelo espera
-        feat_importances = pd.Series(model.feature_importances_, index=['age', 'bmi', 'children', 'sex_male', 'smoker_yes', 'region_NW', 'region_SE', 'region_SW']).sort_values()
-        fig_imp = px.bar(feat_importances, orientation='h', color_discrete_sequence=[SENASA_GREEN])
+        importances = pd.Series(model.feature_importances_, index=['age', 'bmi', 'children', 'sex_male', 'smoker_yes', 'region_NW', 'region_SE', 'region_SW']).sort_values()
+        fig_imp = px.bar(importances, orientation='h', color_discrete_sequence=[SENASA_GREEN])
+        fig_imp.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
         st.plotly_chart(fig_imp, use_container_width=True)
-    except: st.write("Métricas detalladas en el reporte PDF adjunto.")
+    except: st.write("Datos de auditoría no disponibles.")
 
 with tab4:
-    st.write(f"**Desarrollado por:** {st.session_state.get('user_name', 'Isaías Rosario Luciano')}")
-    st.write("Esta herramienta utiliza un algoritmo de Bosques Aleatorios(Random Forest) entrenado con datos históricos de seguros para predecir desviaciones en el gasto médico.")
+    st.markdown(f"**Autor:** {st.session_state.get('user_name', 'Isaías Rosario Luciano')}")
+    st.write("Versión 2.0 - Optimización para SeNaSa Analytics.")

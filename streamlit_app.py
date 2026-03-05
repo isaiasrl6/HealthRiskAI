@@ -86,7 +86,7 @@ if model_data:
     </div>
     """, unsafe_allow_html=True)
 else:
-    st.error("❌ No se detectó motor de IA.")
+    st.error("No se detectó motor de IA.")
     st.stop()
 
 # ========================
@@ -211,4 +211,4 @@ with tab3:
 
 with tab4:
     st.write(f"**Desarrollado por:** {st.session_state.get('user_name', 'Isaías Rosario Luciano')}")
-    st.write("Esta herramienta utiliza un algoritmo de Bosques Aleatorios entrenado con datos históricos de seguros para predecir desviaciones en el gasto médico.")
+    st.write("Esta herramienta utiliza un algoritmo de Bosques Aleatorios(Random Forest) entrenado con datos históricos de seguros para predecir desviaciones en el gasto médico.")

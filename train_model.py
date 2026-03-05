@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 
 def train_model_pro():
-    logging.info("🚀 Iniciando Pipeline de Entrenamiento Pro")
+    logging.info("Iniciando Pipeline de Entrenamiento Pro")
 
     # 1. Carga de datos
     df = pd.read_csv(DATA_PATH)
@@ -56,7 +56,7 @@ def train_model_pro():
         n_jobs=-1 # Usar todos los núcleos del procesador
     )
 
-    logging.info("⏳ Ejecutando GridSearchCV...")
+    logging.info("Ejecutando GridSearchCV...")
     grid_search.fit(X_train, y_train)
 
     best_model = grid_search.best_estimator_
@@ -65,11 +65,11 @@ def train_model_pro():
     y_proba = best_model.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_proba)
     
-    logging.info(f"🏆 Mejor AUC encontrado: {auc:.4f}")
-    logging.info(f"⚙️ Mejores Parámetros: {grid_search.best_params_}")
+    logging.info(f"Mejor AUC encontrado: {auc:.4f}")
+    logging.info(f"Mejores Parámetros: {grid_search.best_params_}")
 
     if auc < AUC_THRESHOLD:
-        raise ValueError(f"❌ Rendimiento insuficiente ({auc:.4f}). Umbral: {AUC_THRESHOLD}")
+        raise ValueError(f"Rendimiento insuficiente ({auc:.4f}). Umbral: {AUC_THRESHOLD}")
 
     # 5. Persistencia Trazable
     timestamp = datetime.now().strftime('%Y%m%d_%H%M')
@@ -93,7 +93,7 @@ def train_model_pro():
     plt.savefig(os.path.join(MODEL_DIR, f'roc_{timestamp}.png'))
     plt.close()
 
-    print(f"🔥 Modelo Pro guardado: {model_name} con AUC {auc:.4f}")
+    print(f"Modelo Pro guardado: {model_name} con AUC {auc:.4f}")
 
 if __name__ == "__main__":
     try:
